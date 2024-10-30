@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ username }}</title>
+</head>
+<body>
+    <h1>Chat with {{ username }}</h1>
+    <ul id="chats">
+    {% for message in messages %}
+        <li>{{ message.sender.username }}: {{ message.message }}</li>
+    {% endfor %}
+    </ul>
+
+    <div>
+        <input type="text" name="message" id="input">
+        <button id="submit">Send</button>
+    </div>
+    {{ username|json_script:"username" }}
+    {{ sender_username|json_script:"sender_username" }}
+</body>
+
+<script type="text/javascript">
+    const input = document.getElementById('input')
+    const button = document.getElementById('submit')
+    const chats = document.getElementById('chats')
+    const username = JSON.parse(document.getElementById('username').textContent)
+    const sender_username = JSON.parse(document.getElementById('sender_username').textContent)
+
+    input.focus()
+    input.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            button.click()
+        }
+    }
+
+    button.onclick = (e) => {
+        const message = input.value
+        const data = JSON.stringify({
+            'message': message,
+            'sender': sender_username,
+        })
+
+        socket.send(data)
+        input.value = ''
+    }
+
+
+    const socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`)
+
+    socket.onmessage = (e) => {
+        const data = JSON.parse(e.data)
+        chats.innerHTML += `
+            <li>${data.sender}: ${data.message}</li>
+        `
+    }
+
+    socket.onopen = (e) => {
+        console.log('socket connected successfully!')
+    }
+
+    socket.onclose = (e) => {
+        console.log('Socket Closed Unexpectedly!')
+    }
+
+</script>
+
+</html>

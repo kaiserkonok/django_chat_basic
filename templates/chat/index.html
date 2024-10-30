@@ -1,0 +1,14 @@
+<!-- chat/templates/chat/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Rooms</title>
+</head>
+<body>
+    <h1>Chat with Friends</h1>
+    {% for user in users %}
+        <p><a href="/chat/{{ user.username }}">{{ user.username }}</a></p>
+    {% endfor %}
+</body>
+</html>
